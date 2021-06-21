@@ -1,0 +1,10 @@
+---
+# defaults file for rthar_pg_cluster
+rthar_pg_cluster_disk_dev:
+rthar_pg_cluster_vg_name:
+rthar_pg_cluster_lv_name:
+rthar_pg_cluster_lv_fstype:
+rthar_pg_cluster_lv_mntpt:
+rthar_pg_cluster_name:
+rthar_pg_cluster_port: 5432
+rthar_pg_cluster_manage_disks: false

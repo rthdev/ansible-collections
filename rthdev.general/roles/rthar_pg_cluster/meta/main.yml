@@ -1,0 +1,14 @@
+galaxy_info:
+  author: Roger Thoeni
+  description: Creates a postgres cluster
+  company: rth
+
+  license: MIT
+
+  min_ansible_version: 2.9
+
+  galaxy_tags:
+    - postgres
+
+dependencies: []
+  #- role: rthar_pg_base

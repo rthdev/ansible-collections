@@ -1,0 +1,18 @@
+---
+# defaults file for rthar_keepalived
+rthar_keepalived_script_user: keepalived_script
+rthar_keepalived_script_check_cmd: haproxy
+rthar_keepalived_script_check_interval: 2
+rthar_keepalived_script_weight: 10
+
+rthar_keepalived_instance_name: VI_1
+rthar_keepalived_state: MASTER
+rthar_keepalived_interface: ens192
+rthar_keepalived_virtual_router_id: 123 # max I don't know
+rthar_keepalived_priority: 245 # max 255-weightof script
+rthar_keepalived_authentication_pass: password # max 8 chars
+rthar_keepalived_virtual_ip_address: 10.0.0.100/8
+
+rthar_keepalived_unicast_src_address: 10.0.0.11
+rthar_keepalived_unicast_peer: 10.0.0.12
+

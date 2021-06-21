@@ -1,0 +1,67 @@
+---
+# tasks file for rthar_pg_base
+- name: "Verify that required variables are defined"
+  assert:
+    that:
+      - "{{ rthar_pg_base_variable }} is defined"
+      - "{{ rthar_pg_base_variable }} != None"
+      - "{{ rthar_pg_base_variable }} | length > 0"
+    fail_msg: "{{ rthar_pg_base_variable }} needs to be set for the role to work"
+    success_msg: "Required variable {{ rthar_pg_base_variable }} is defined"
+  loop_control:
+    loop_var: rthar_pg_base_variable
+  loop:
+    - rthar_pg_base_disk_dev
+    - rthar_pg_base_vg_name
+    - rthar_pg_base_lv_name
+    - rthar_pg_base_lv_fstype
+    - rthar_pg_base_lv_mntpt
+
+- name: Ensure disk is partitioned
+  parted:
+    device: "{{ rthar_pg_base_disk_dev }}"
+    number: 1
+    part_start: 0%
+    part_end: 100%
+    state: present
+    flags: [ lvm ]
+    align: optimal
+
+- name: Ensure LVM Volume Group exists
+  lvg:
+    pvs: "{{ rthar_pg_base_disk_dev }}1"
+    vg: "{{ rthar_pg_base_vg_name }}"
+    state: present
+
+- name: Ensure LVM Logical Volume exists
+  lvol:
+    vg: "{{ rthar_pg_base_vg_name }}"
+    lv: "{{ rthar_pg_base_lv_name }}"
+    size: 100%VG
+
+- name: Ensure filesystem is created
+  filesystem:
+    dev: "/dev/{{ rthar_pg_base_vg_name }}/{{ rthar_pg_base_lv_name }}"
+    fstype: "{{ rthar_pg_base_lv_fstype }}"
+
+- name: Ensure base path exists
+  file:
+    path: "{{ rthar_pg_base_lv_mntpt }}"
+    state: directory
+    owner: root
+    group: root
+
+- name: Ensure postgres base directory is mounted
+  mount:
+    path: "{{ rthar_pg_base_lv_mntpt }}"
+    src: "/dev/{{ rthar_pg_base_vg_name }}/{{ rthar_pg_base_lv_name }}"
+    fstype: xfs
+    opts: noatime,defaults
+    state: mounted
+
+- name: Install postgres sql server and deps
+  package:
+    name:
+      - postgresql-server
+      - python3-psycopg2
+    state: installed

@@ -1,0 +1,4 @@
+---
+# vars file for rthar_pg_cluster
+rthar_pg_cluster_systemd_unit: postgresql@{{ rthar_pg_cluster_name }}
+rthar_pg_cluster_db_base: "{{ rthar_pg_cluster_lv_mntpt }}/postgres"

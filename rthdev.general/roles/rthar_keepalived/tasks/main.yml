@@ -1,0 +1,28 @@
+---
+# tasks file for rthdev-keepalived
+- block:
+
+  - name: Install keepalived package
+    yum:
+      name: keepalived
+      state: installed
+
+  - name: Template out config
+    template:
+      src: keepalived.conf.j2
+      dest: /etc/keepalived/keepalived.conf
+      owner: root
+      group: root
+      mode: 0640
+    notify:
+      - restart keepalived
+
+  - meta: flush_handlers
+
+  - name: Ensure keepalived service is running
+    systemd:
+      name: keepalived
+      state: started
+      enabled: true
+
+  become: true

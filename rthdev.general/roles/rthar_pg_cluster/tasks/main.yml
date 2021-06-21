@@ -1,0 +1,118 @@
+---
+# tasks file for rthar_pg_cluster
+
+- name: "{{ rthar_pg_cluster_name }} - Verify that required base variables are defined"
+  assert:
+    that: 
+      - "{{ rthar_pg_cluster_variable }} is defined"
+      - "{{ rthar_pg_cluster_variable }} != None"
+      - "{{ rthar_pg_cluster_variable }} | length > 0"
+    fail_msg: "{{ rthar_pg_cluster_variable }} needs to be set for the role to work"
+    success_msg: "Required variable {{ rthar_pg_cluster_variable }} is defined"
+  loop_control:
+    loop_var: rthar_pg_cluster_variable
+  loop:
+    - rthar_pg_cluster_lv_mntpt
+    - rthar_pg_cluster_name
+
+- block:
+
+  - name: "{{ rthar_pg_cluster_name }} - Verify that required disk variables are defined"
+    assert:
+      that: 
+        - "{{ rthar_pg_cluster_variable }} is defined"
+        - "{{ rthar_pg_cluster_variable }} != None"
+        - "{{ rthar_pg_cluster_variable }} | length > 0"
+      fail_msg: "{{ rthar_pg_cluster_variable }} needs to be set for the role to work"
+      success_msg: "Required variable {{ rthar_pg_cluster_variable }} is defined"
+    loop_control:
+      loop_var: rthar_pg_cluster_variable
+    loop:
+      - rthar_pg_cluster_disk_dev
+      - rthar_pg_cluster_vg_name
+      - rthar_pg_cluster_lv_name
+      - rthar_pg_cluster_lv_fstype
+
+  - name: "{{ rthar_pg_cluster_name }} - Ensure disk is partitioned"
+    parted:
+      device: "{{ rthar_pg_cluster_disk_dev }}"
+      number: 1
+      part_start: 0%
+      part_end: 100%
+      state: present
+      flags: [ lvm ]
+      align: optimal
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure LVM Volume Group exists"
+    lvg:
+      pvs: "{{ rthar_pg_cluster_disk_dev }}1"
+      vg: "{{ rthar_pg_cluster_vg_name }}"
+      state: present
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure LVM Logical Volume exists"
+    lvol:
+      vg: "{{ rthar_pg_cluster_vg_name }}"
+      lv: "{{ rthar_pg_cluster_lv_name }}"
+      size: 100%VG
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure filesystem is created"
+    filesystem:
+      dev: "/dev/{{ rthar_pg_cluster_vg_name }}/{{ rthar_pg_cluster_lv_name }}"
+      fstype: "{{ rthar_pg_cluster_lv_fstype }}"
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure mount path exists"
+    file:
+      path: "{{ rthar_pg_cluster_lv_mntpt }}"
+      state: directory
+      owner: root
+      group: root
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure postgres directory is mounted"
+    mount:
+      path: "{{ rthar_pg_cluster_lv_mntpt }}"
+      src: "/dev/{{ rthar_pg_cluster_vg_name }}/{{ rthar_pg_cluster_lv_name }}"
+      fstype: xfs
+      opts: noatime,defaults
+      state: mounted
+
+  when: rthar_pg_cluster_manage_disks
+  become: true
+  become_user: root
+
+- block:
+
+  - name: "{{ rthar_pg_cluster_name }} - Ensure DB cluster path exists"
+    file:
+      path: "{{ rthar_pg_cluster_db_base }}"
+      state: directory
+      owner: postgres
+      group: postgres
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure postgres cluster exists"
+    command:
+      cmd: /usr/sbin/postgresql-new-systemd-unit --unit={{ rthar_pg_cluster_systemd_unit }} --datadir={{ rthar_pg_cluster_db_base }}/data
+      creates: /etc/systemd/system/{{ rthar_pg_cluster_systemd_unit }}.service.d
+  
+  - name: "{{ rthar_pg_cluster_name }} - Initialize Database Cluster"
+    command:
+      cmd: postgresql-setup --initdb --unit={{ rthar_pg_cluster_systemd_unit }} --port={{ rthar_pg_cluster_port }}
+      creates: "{{ rthar_pg_cluster_db_base }}/data/postgresql.conf"
+  
+  - name: "{{ rthar_pg_cluster_name }} - Ensure Service is started and enabled"
+    systemd:
+      name: "{{ rthar_pg_cluster_systemd_unit }}"
+      state: started
+      enabled: true
+
+  become: true
+  become_user: root
+
+- name: "{{ rthar_pg_cluster_name }} - Configure Postgres Cluster to listen on all interfaces"
+  postgresql_set:
+    name: listen_addresses
+    value: "*"
+    port: "{{ rthar_pg_cluster_port }}"
+  become_user: postgres
+  become: true
+  notify:
+    - Restart postgres
