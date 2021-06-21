@@ -1,0 +1,16 @@
+---
+namespace: rthdev
+name: testing
+version: 0.1.0
+readme: README.md
+authors:
+  - Ansible (https://github.com/ansible)
+description:
+license_file: LICENSE
+tags:
+  - rthdev
+dependencies: {}
+repository: https://github.com/rthdev/ansible-collections.git
+homepage: https://github.com/rthdev/ansible-collections.git
+issues: https://github.com/rthdev/ansible-collections.git?issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc
+
