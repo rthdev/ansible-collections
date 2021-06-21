@@ -23,7 +23,7 @@
     │   └── tasks/
     └── tests/
     
-## How to use
+## How to configure and install
     $ cat ansible.cfg 
     [defaults]
     collections_paths = collections
@@ -35,4 +35,14 @@
         version: develop
 
     $ ansible-galaxy collection install -r collections/requirements.yml
+
+
+## How to use
+### Roles
+    - role
+      name: rthdev.general.<rolename>
+
+### Playbooks
+    - name: Use playbook from collection
+      import_playbook: collections/ansible_collections/rthdev/general/playbooks/hello_world.yaml
 
