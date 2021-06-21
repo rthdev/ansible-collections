@@ -1,0 +1,8 @@
+---
+- name: Playbook to say hello
+  hosts: all
+  become: false
+  gather_facts: false
+
+  roles:
+    - name: rthdev.general.rthar_hello_world
