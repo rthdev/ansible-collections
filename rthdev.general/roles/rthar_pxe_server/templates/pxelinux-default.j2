@@ -4,7 +4,7 @@ timeout 30
 menu title PXE Menu
 
 {% for item in pxesrv_images %}
-LABEL {{ item.label }}
+label {{ item.label }}
 KERNEL {{ item.kernel }}
 APPEND {{ item.append }}
 {% endfor %}
