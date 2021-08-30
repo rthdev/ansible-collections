@@ -3,9 +3,12 @@ prompt 0
 timeout 30
 menu title PXE Menu
 
-label Install CentOS 7.6
-KERNEL /networkboot/centos7/vmlinuz
-APPEND initrd=/networkboot/centos7/initrd.img inst.ks={{ ks_centos7 }}
+{% for item in pxesrv_images %}
+LABEL {{ item.label }}
+KERNEL {{ item.kernel }}
+APPEND {{ item.append }}
+{% endfor %}
+
 
 LABEL Boot from local drive
 #  localboot 0
