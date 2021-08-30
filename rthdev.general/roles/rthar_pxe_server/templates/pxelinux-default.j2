@@ -1,0 +1,13 @@
+default menu.c32
+prompt 0
+timeout 30
+menu title PXE Menu
+
+label Install CentOS 7.6
+KERNEL /networkboot/centos7/vmlinuz
+APPEND initrd=/networkboot/centos7/initrd.img inst.ks={{ ks_centos7 }}
+
+LABEL Boot from local drive
+#  localboot 0
+KERNEL chain.c32
+APPEND hd0 0

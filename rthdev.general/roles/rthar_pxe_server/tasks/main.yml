@@ -1,0 +1,98 @@
+---
+# tasks file for rthar_pxe_server
+- block:
+  - name: Install required packages
+    yum:
+      name: "{{ pxesrv_packages }}"
+      state: installed
+  
+  - name: Configure DHCP
+    template:
+      src: dhcpd.conf.j2
+      dest: /etc/dhcp/dhcpd.conf
+  
+  - name: Configure Services
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    with_items:
+      - "{{ pxesrv_services }}"
+  
+  - name: Configure Firewall
+    firewalld:
+      service: "{{ item }}"
+      zone: "{{ pxesrv_fw_zone }}"
+      state: enabled
+      immediate: yes
+      permanent: yes
+    with_items:
+      - "{{ pxesrv_fw_services }}"
+    when: pxesrv_manage_fw | bool
+  
+  - name: Copy pxeboot files
+    copy:
+      src: "{{ item }}"
+      remote_src: yes
+      dest: "{{ pxesrv_tftproot }}/"
+    with_items:
+      - "{{ pxesrv_pxefiles }}"
+  
+  - name: Ensure default directories exist
+    file:
+      name: "{{ item }}"
+      state: directory
+      recurse: yes
+    with_items:
+      - "{{ pxesrv_tftproot }}/pxelinux.cfg"
+      - "{{ pxesrv_ftproot }}"
+      - "{{ pxesrv_isoroot }}"
+      - "{{ pxesrv_wwwroot }}/ks"
+  
+  - name: Ensure iso mount directories exist
+    file:
+      name: "{{ pxesrv_wwwroot }}/os/{{ item.name }}"
+      state: directory
+      recurse: yes
+    loop: "{{ pxesrv_images }}"
+
+  - name: Ensure pxe boot directories exist
+    file:
+      name: "{{ pxesrv_tftproot }}/networkboot/{{ item.name }}"
+      state: directory
+      recurse: yes
+    loop: "{{ pxesrv_images }}"
+
+  - name: Download the Image files
+    get_url:
+      dest: "{{ pxesrv_isoroot }}/{{ item.iso_url | basename }}"
+      url: "{{ item.iso_url }}"
+      tmp_dest: "{{ pxesrv_isoroot }}"
+    loop: "{{ pxesrv_images }}"
+  
+  - name: Mount the image files
+    mount:
+      fstype: iso9660
+      path: "{{ pxesrv_wwwroot }}/os/{{ item.name }}"
+      src: "{{ pxesrv_isoroot }}/{{ item.iso_url | basename }}"
+      state: mounted
+    loop: "{{ pxesrv_images }}"
+  
+  - name: Copy boot files
+    copy:
+      src: "{{ pxesrv_wwwroot }}/os/{{ item.name }}/{{ item.boot_subdir }}/"
+      remote_src: yes
+      dest: "{{ pxesrv_tftproot }}/networkboot/{{ item.name }}"
+    loop: "{{ pxesrv_images }}"
+  
+  - name: Template out CentOS PXE config
+    template:
+      src: pxelinux-default.j2
+      dest: "{{ pxesrv_pxeconfig }}"
+  
+  - name: Template out CentOS Kickstart
+    template:
+      src: centos7.ks.j2
+      dest: /var/www/html/ks/centos7.ks
+
+  become: true

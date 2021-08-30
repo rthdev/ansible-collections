@@ -1,0 +1,29 @@
+---
+# defaults file for rthar_pxe_server
+pxesrv_manage_fw: false
+pxesrv_fw_zone: internal
+pxesrv_tftproot: /var/lib/tftpboot
+pxesrv_ftproot: /var/ftp/pub
+pxesrv_isoroot: /data/iso
+pxesrv_wwwroot: /var/www/html
+pxesrv_network: 172.16.0.0/16
+pxesrv_domain_name: example.com
+pxesrv_srv_ip: 172.16.0.1
+pxesrv_dns_ip: 172.16.0.1
+pxesrv_ip_range_start: 172.16.9.1
+pxesrv_ip_range_end: 172.16.9.100
+
+pxesrv_images:
+  - name: centos7
+    label: CentOS 7
+    iso_url: http://mirrors.coreix.net/centos/7/isos/x86_64/CentOS-7-x86_64-Everything-2009.iso
+    boot_subdir: images/pxeboot
+    kernel: /networkboot/centos7/vmlinuz
+    append: initrd=/networkboot/centos7/initrd.img
+
+pxesrv_hosts:
+  - name: MyHost1
+    mac: aa:bb:cc:dd:ee:ff
+    label: My Host
+    kernel: http://mypxesrv/iso/CentOS-7-kernel
+    append: ks=http://mypxesrv/ks/centos7-default.ks
