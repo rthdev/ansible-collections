@@ -27,3 +27,4 @@ pxesrv_hosts:
     label: My Host
     kernel: http://mypxesrv/iso/CentOS-7-kernel
     append: ks=http://mypxesrv/ks/centos7-default.ks
+    ip: 172.16.0.10
