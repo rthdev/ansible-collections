@@ -90,9 +90,4 @@
       src: pxelinux-default.j2
       dest: "{{ pxesrv_pxeconfig }}"
   
-  - name: Template out CentOS Kickstart
-    template:
-      src: centos7.ks.j2
-      dest: /var/www/html/ks/centos7.ks
-
   become: true
