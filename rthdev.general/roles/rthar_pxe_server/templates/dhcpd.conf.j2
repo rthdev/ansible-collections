@@ -20,8 +20,6 @@ max-lease-time 7200;
 #PXE boot server
 next-server {{ pxesrv_srv_ip }};
 filename "pxelinux.0";
-
-{% for host in pxesrv_hosts %}
-  host {{ host.name }} { hardware ethernet {{ host.mac }}; fixed-address {{ host.ip }};  }
-{% endfor %}
 }
+
+include "{{ pxesrv_reservations_file }}";

@@ -12,6 +12,7 @@ pxesrv_srv_ip: 172.16.0.1
 pxesrv_dns_ip: 172.16.0.1
 pxesrv_ip_range_start: 172.16.9.1
 pxesrv_ip_range_end: 172.16.9.100
+pxesrv_reservations_file: /etc/dhcp-reservations.conf
 
 pxesrv_images:
   - name: centos7
@@ -20,11 +21,3 @@ pxesrv_images:
     boot_subdir: images/pxeboot
     kernel: /networkboot/centos7/vmlinuz
     append: initrd=/networkboot/centos7/initrd.img
-
-pxesrv_hosts:
-  - name: MyHost1
-    mac: aa:bb:cc:dd:ee:ff
-    label: My Host
-    kernel: http://mypxesrv/iso/CentOS-7-kernel
-    append: ks=http://mypxesrv/ks/centos7-default.ks
-    ip: 172.16.0.10
