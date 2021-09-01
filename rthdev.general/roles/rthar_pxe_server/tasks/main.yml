@@ -69,6 +69,10 @@
       url: "{{ item.iso_url }}"
       tmp_dest: "{{ pxesrv_isoroot }}"
     loop: "{{ pxesrv_images }}"
+    environment:
+      http_proxy: "{{ pxesrv_http_proxy | default(omit) }}"
+      https_proxy: "{{ pxesrv_https_proxy | default(omit) }}"
+      no_proxy: "{{ pxesrv_no_proxy | default(omit) }}"
   
   - name: Mount the image files
     mount:
