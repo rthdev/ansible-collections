@@ -68,6 +68,7 @@
       dest: "{{ pxesrv_isoroot }}/{{ item.iso_url | basename }}"
       url: "{{ item.iso_url }}"
       tmp_dest: "{{ pxesrv_isoroot }}"
+      force: no
     loop: "{{ pxesrv_images }}"
     environment:
       http_proxy: "{{ pxesrv_http_proxy | default(omit) }}"

@@ -5,6 +5,7 @@ ks_centos7: http://infra.example.com/ks/centos7.ks
 pxesrv_pxeconfig: "{{ pxesrv_tftproot }}/pxelinux.cfg/default"
 pxesrv_services:
   - dhcpd
+  - tftp.socket
   - tftp
   - vsftpd
 pxesrv_pxefiles:
@@ -26,3 +27,4 @@ pxesrv_fw_services:
   - proxy-dhcp
   - tftp
   - ftp
+  - dns
