@@ -21,6 +21,11 @@
     notify:
       - restart keepalived
 
+  - name: Create keepalived script user
+    user:
+      name: "{{ rthar_keepalived_script_user }}"
+      state: present
+
   - meta: flush_handlers
 
   - name: Ensure keepalived service is running
