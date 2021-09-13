@@ -16,3 +16,6 @@ rthar_keepalived_virtual_ip_address: 10.0.0.100/8
 rthar_keepalived_unicast_src_address: 10.0.0.11
 rthar_keepalived_unicast_peer: 10.0.0.12
 
+rthar_keepalived_http_proxy:
+rthar_keepalived_https_proxy:
+rthar_keepalived_no_proxy:

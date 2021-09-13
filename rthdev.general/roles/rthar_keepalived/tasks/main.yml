@@ -6,6 +6,10 @@
     yum:
       name: keepalived
       state: installed
+    environment:
+      http_proxy: "{{ rthar_keepalived_http_proxy | default(omit) }}"
+      https_proxy: "{{ rthar_keepalived_https_proxy | default(omit) }}"
+      no_proxy: "{{ rthar_keepalived_no_proxy | default(omit) }}"
 
   - name: Template out config
     template:
