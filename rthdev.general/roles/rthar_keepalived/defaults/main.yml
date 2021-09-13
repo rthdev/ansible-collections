@@ -11,7 +11,11 @@ rthar_keepalived_interface: ens192
 rthar_keepalived_virtual_router_id: 123 # max I don't know
 rthar_keepalived_priority: 245 # max 255-weightof script
 rthar_keepalived_authentication_pass: password # max 8 chars
-rthar_keepalived_virtual_ip_address: 10.0.0.100/8
+rthar_keepalived_virtual_ip_addresses: 
+- ip: 10.0.0.100/8
+  dns:
+    - dns1.example.com
+    - dns2.example.com
 
 rthar_keepalived_unicast_src_address: 10.0.0.11
 rthar_keepalived_unicast_peer: 10.0.0.12

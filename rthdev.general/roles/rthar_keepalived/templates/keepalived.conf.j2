@@ -26,7 +26,9 @@ vrrp_instance {{ rthar_keepalived_instance_name }} {
     }
 
     virtual_ipaddress {
-        {{ rthar_keepalived_virtual_ip_address }}
+        {% for ip in rthar_keepalived_virtual_ip_addresses %}
+            {{ ip.ip }}
+        {% endfor %}
     }
 
     track_script {
