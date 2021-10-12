@@ -1,0 +1,13 @@
+---
+# defaults file for rthar_dns_zone
+rthar_dns_zone_config_filename:
+rthar_dns_zone_config_serial: 2021100000
+rthar_dns_zone_config_refresh: 3600
+rthar_dns_zone_config_retry: 1800
+rthar_dns_zone_config_expire: 604800
+rthar_dns_zone_config_minttl: 86400
+rthar_dns_zone_fwd_name:
+rthar_dns_zone_rev_name:
+rthar_dns_zone_filename:
+rthar_dns_zone_nameserver:
+rthar_dns_zone_entries:
