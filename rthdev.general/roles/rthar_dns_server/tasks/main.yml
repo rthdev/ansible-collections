@@ -1,0 +1,29 @@
+---
+# tasks file for rthar_dns_server
+
+- name: Install required packages
+  ansible.builtin.yum:
+    name: "{{ rthar_dns_server_packages }}"
+    state: installed
+  become: true
+
+- name: DNS Server config
+  ansible.builtin.template:
+    src: named.conf.j2
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: 0640
+  become: true
+  notify:
+    - restart dns
+
+- name: Force all notified handlers to run at this point because we need current dns running
+  ansible.builtin.meta: flush_handlers
+
+- name: DNS Server Service
+  ansible.builtin.service:
+    name: "{{ rthar_dns_server_systemd_service }}"
+    state: started
+    enabled: true
+  become: true

@@ -1,0 +1,8 @@
+---
+# handlers file for rthar_dns_server
+
+- name: restart dns
+  ansible.builtin.service:
+    name: "{{ rthar_dns_server_systemd_service }}"
+    state: restarted
+  become: true
