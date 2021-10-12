@@ -12,4 +12,4 @@ rthar_dns_server_forwarders:
 rthar_dns_server_firewall_service: dns
 rthar_dns_server_firwall_zone: public
 
-rthar_dns_server_external_config_file:
+rthar_dns_server_external_config_files:

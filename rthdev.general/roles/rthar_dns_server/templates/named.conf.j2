@@ -52,6 +52,8 @@ zone "." IN {
 include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 
-{% if rthar_dns_server_external_config_file %}
-include "{{ rthar_dns_server_external_config_file }}";
+{% if rthar_dns_server_external_config_files %}
+  {% for file in rthar_dns_server_external_config_files %}
+include "{{ file }}";
+  {% endfor %}
 {% endif %}
