@@ -1,16 +1,16 @@
 #########################################
-# {{ rthar_dns_zone_fwd_name }}
+# {{ rthar_dns_zone_config.fwd_name }}
 #########################################
-zone "{{ rthar_dns_zone_fwd_name }}" IN {
+zone "{{ rthar_dns_zone_config.fwd_name }}" IN {
 type master;
-file "domains/{{ rthar_dns_zone_fwd_name }}.db";
+file "domains/{{ rthar_dns_zone_config.fwd_name }}.db";
 allow-update { none; };
 };
 
-{% if rthar_dns_zone_rev_name %}
-zone "{{ rthar_dns_zone_rev_name }}." IN {
+{% if rthar_dns_zone_config.rev_name %}
+zone "{{ rthar_dns_zone_config.rev_name }}." IN {
 type master;
-file "domains/{{ rthar_dns_zone_rev_name }}.db";
+file "domains/{{ rthar_dns_zone_config.rev_name }}.db";
 allow-update { none; };
 };
 {% endif %}

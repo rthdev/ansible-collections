@@ -1,17 +1,17 @@
-$TTL {{ rthar_dns_zone_config_minttl }}
-@    IN   SOA   {{ rthar_dns_zone_fwd_name }} {{ rthar_dns_zone_fwd_name }}. (
-{{ rthar_dns_zone_config_serial }} ;Serial
-{{ rthar_dns_zone_config_refresh }}       ;Refresh
-{{ rthar_dns_zone_config_retry }}       ;Retry
-{{ rthar_dns_zone_config_expire }}     ;Expire
-{{ rthar_dns_zone_config_minttl }}      ;Minimum TTL
+$TTL {{ rthar_dns_zone_config.minttl }}
+@    IN   SOA   {{ rthar_dns_zone_config.fwd_name }} {{ rthar_dns_zone_config.fwd_name }}. (
+{{ rthar_dns_zone_config.serial }} ;Serial
+{{ rthar_dns_zone_config.refresh }}       ;Refresh
+{{ rthar_dns_zone_config.retry }}       ;Retry
+{{ rthar_dns_zone_config.expire }}     ;Expire
+{{ rthar_dns_zone_config.minttl }}      ;Minimum TTL
 )
 
 ;Name Server Information
-@   IN NS  {{ rthar_dns_zone_nameserver }}.
+@   IN NS  {{ rthar_dns_zone_config.nameserver }}.
 
-{% if rthar_dns_zone_entries %}
-{% for host in rthar_dns_zone_entries %}
+{% if rthar_dns_zone_config.entries %}
+{% for host in rthar_dns_zone_config.entries %}
 {% if host.rev is defined %}
 {% if host.rev %}
 {{ host.ip.split('.')[-1] }} IN PTR {{ host.name }}
