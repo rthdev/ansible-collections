@@ -1,30 +1,38 @@
 ---
 # tasks file for rthar_dns_zone
 
-- name: Configure DNS Domains directory
-  ansible.builtin.file:
-    path: "{{ rthar_dns_zone_dir }}"
-    owner: named
-    group: named
-    mode: 0750
-    state: directory
-  become: true
+- block:
+  - name: Configure DNS Domains directory
+    ansible.builtin.file:
+      path: "{{ rthar_dns_zone_dir }}"
+      owner: named
+      group: named
+      mode: 0750
+      state: directory
+  
+  - name: Template DNS Zone Fordward Config to "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_fwd_name }}.db"
+    ansible.builtin.template:
+      src: dns-zone-fwd.conf.j2
+      dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_fwd_name }}.db"
+      owner: named
+      group: named
+      mode: 0640
+  
+  - name: Template DNS Zone Reverse Config to "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_rev_name }}.db"
+    ansible.builtin.template:
+      src: dns-zone-rev.conf.j2
+      dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_rev_name }}.db"
+      owner: named
+      group: named
+      mode: 0640
+    when: rthar_dns_zone_rev_name | length > 0
+  
+  - name: Template bind configuration file to {{ rthar_dns_zone_config_filename }}
+    ansible.builtin.template:
+      src: dns-config.j2
+      dest: "{{ rthar_dns_zone_config_filename }}"
+      owner: named
+      group: named
+      mode: 0640
 
-- name: Template DNS Zone Fordward Config
-  ansible.builtin.template:
-    src: dns-zone-fwd.conf.j2
-    dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_fwd_name }}.db"
-    owner: named
-    group: named
-    mode: 0640
   become: true
-
-- name: Template DNS Zone Reverse Config
-  ansible.builtin.template:
-    src: dns-zone-rev.conf.j2
-    dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_rev_name }}.db"
-    owner: named
-    group: named
-    mode: 0640
-  become: true
-  when: rthar_dns_zone_rev_name | length > 0
