@@ -12,6 +12,12 @@ $TTL {{ rthar_dns_zone_config_minttl }}
 
 {% if rthar_dns_zone_entries %}
 {% for host in rthar_dns_zone_entries %}
+{% if host.rev is defined %}
+{% if host.rev %}
 {{ host.ip.split('.')[-1] }} IN PTR {{ host.name }}
+{% endif %}
+{% else %}
+{{ host.ip.split('.')[-1] }} IN PTR {{ host.name }}
+{% endif %}
 {% endfor %}
 {% endif %}
