@@ -11,3 +11,4 @@ rthar_dns_zone_rev_name:
 rthar_dns_zone_filename:
 rthar_dns_zone_nameserver:
 rthar_dns_zone_entries:
+rthar_dns_zone_dir: /var/named/domains

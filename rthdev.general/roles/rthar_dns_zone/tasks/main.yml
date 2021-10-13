@@ -1,2 +1,30 @@
 ---
 # tasks file for rthar_dns_zone
+
+- name: Configure DNS Domains directory
+  ansible.builtin.file:
+    path: "{{ rthar_dns_zone_dir }}"
+    owner: named
+    group: named
+    mode: 0750
+    state: directory
+  become: true
+
+- name: Template DNS Zone Fordward Config
+  ansible.builtin.template:
+    src: dns-zone-fwd.conf.j2
+    dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_fwd_name }}.db"
+    owner: named
+    group: named
+    mode: 0640
+  become: true
+
+- name: Template DNS Zone Reverse Config
+  ansible.builtin.template:
+    src: dns-zone-rev.conf.j2
+    dest: "{{ rthar_dns_zone_dir }}/{{ rthar_dns_zone_rev_name }}.db"
+    owner: named
+    group: named
+    mode: 0640
+  become: true
+  when: rthar_dns_zone_rev_name is not empty
