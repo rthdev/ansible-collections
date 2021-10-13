@@ -6,7 +6,6 @@ pxesrv_pxeconfig: "{{ pxesrv_tftproot }}/pxelinux.cfg/default"
 pxesrv_services:
   - dhcpd
   - tftp.socket
-  - tftp
   - vsftpd
 pxesrv_pxefiles:
   - /usr/share/syslinux/pxelinux.0
