@@ -11,7 +11,7 @@ $TTL {{ rthar_dns_zone_config_minttl }}
 @   IN NS  {{ rthar_dns_zone_nameserver }}.
 
 {% if rthar_dns_zone_entries %}
-  {% for host in rthar_dns_zone_entries %}
+{% for host in rthar_dns_zone_entries %}
 {{ host.name.split('.')[0] }} IN A {{ host.ip }}
-  {% endfor %}
+{% endfor %}
 {% endif %}
