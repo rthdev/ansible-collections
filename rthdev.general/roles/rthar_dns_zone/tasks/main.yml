@@ -27,4 +27,4 @@
     group: named
     mode: 0640
   become: true
-  when: rthar_dns_zone_rev_name
+  when: rthar_dns_zone_rev_name | bool
