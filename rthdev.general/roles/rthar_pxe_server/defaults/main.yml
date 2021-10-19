@@ -13,7 +13,7 @@ pxesrv_dns_ip: 172.16.0.1
 pxesrv_gw_ip: 172.16.0.1
 pxesrv_ip_range_start: 172.16.9.1
 pxesrv_ip_range_end: 172.16.9.100
-pxesrv_reservations_file: /etc/dhcp-reservations.conf
+pxesrv_reservations_file:
 pxesrv_http_proxy:
 pxesrv_https_proxy:
 pxesrv_no_proxy:
