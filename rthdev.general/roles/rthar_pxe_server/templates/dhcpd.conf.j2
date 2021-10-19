@@ -12,7 +12,7 @@ netmask {{ pxesrv_network | ipaddr('netmask') }}
 range {{ pxesrv_ip_range_start }} {{ pxesrv_ip_range_end }};
 option domain-name-servers {{ pxesrv_dns_ip }};
 option domain-name "{{ pxesrv_domain_name }}";
-option routers {{ pxesrv_srv_ip }};
+option routers {{ pxesrv_gw_ip }};
 option broadcast-address {{ pxesrv_network | ipaddr('broadcast') }};
 default-lease-time 600;
 max-lease-time 7200;
