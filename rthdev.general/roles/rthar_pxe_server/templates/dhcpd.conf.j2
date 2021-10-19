@@ -22,4 +22,6 @@ next-server {{ pxesrv_srv_ip }};
 filename "pxelinux.0";
 }
 
+{% if pxesrv_reservations_file %}
 include "{{ pxesrv_reservations_file }}";
+{% endif %}
