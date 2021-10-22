@@ -1,0 +1,55 @@
+---
+# tasks file for rthar_nginx_server
+
+- name: Install packages
+  ansible.builtin.yum:
+    name: "{{ rthar_nginx_server_conf.packages }}"
+    state: installed
+
+- name: Ensure html directory is available
+  ansbile.builtin.file:
+    path: "{{ rthar_nginx_server_conf.html_dir }}"
+    state: directory
+
+- name: Configure selinux if required
+  sefcontext:
+    target: '{{ rthar_nginx_server_conf.html_dir }}(/.*)?'
+    setype: httpd_sys_rw_content_t
+    state: present
+  register: selinux_fcontext
+  when: rthar_nginx_server_conf.manage_selinux | bool
+
+- name: Apply new SELinux file context to filesystem
+  ansible.bultin.command:
+    cmd: restorecon -irv "{{ rthar_nginx_server_conf.html_dir }}"
+  when: selinux_fcontext.changed | bool
+
+- name: Template nginx configuration
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: 0640
+  register: config
+
+- name: Configure Firewall if required
+  ansible.posix.firewalld:
+    service: "{{ rthar_nginx_server_conf.firewalld_services }}"
+    state: enabled
+    immediate: true
+    permanent: true
+    zone: "{{ rthar_nginx_server_conf.firewall_zone }}"
+  when: rthar_nginx_server_conf.manage_firewall | bool
+
+- name: Restart service
+  ansible.builtin.systemd:
+    name: "{{ rthar_nginx_server_conf.systemd_service }}"
+    state: started
+  when: config.changed | bool
+
+- name: Enable and start service
+  ansible.builtin.systemd:
+    name: "{{ rthar_nginx_server_conf.systemd_service }}"
+    state: started
+    enabled: true
