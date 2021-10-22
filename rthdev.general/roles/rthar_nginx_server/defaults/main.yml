@@ -4,7 +4,7 @@ rthar_nginx_server_conf:
   html_dir: /var/www/html
   systemd_service: nginx
   firewalld_services:
-    - "https"
+    - https
   packages:
     - nginx
   manage_selinux: true
