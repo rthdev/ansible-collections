@@ -6,6 +6,12 @@
     ansible.builtin.yum:
       name: "{{ rthar_nginx_server_conf.packages }}"
       state: installed
+
+  - name: Ensure SElinux requirements are met when managed
+    yum:
+      name: policycoreutils-python
+      state: installed
+    when: rthar_nginx_server_conf.manage_firewall | bool
   
   - name: Ensure html directory is available
     ansible.builtin.file:
@@ -35,12 +41,6 @@
       group: root
       mode: 0640
     register: config
-  
-  - name: Ensure SElinux requirements are met when managed
-    yum:
-      name: policycoreutils-python
-      state: installed
-    when: rthar_nginx_server_conf.manage_firewall | bool
   
   - name: Configure Firewall if required
     ansible.posix.firewalld:
