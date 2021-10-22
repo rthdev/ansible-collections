@@ -9,4 +9,4 @@ rthar_nginx_server_conf:
     - nginx
   manage_selinux: true
   manage_firewall: true
-  firwall_zone: public
+  firewall_zone: public
