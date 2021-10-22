@@ -12,7 +12,7 @@
     state: directory
 
 - name: Configure selinux if required
-  sefcontext:
+  community.general.sefcontext:
     target: '{{ rthar_nginx_server_conf.html_dir }}(/.*)?'
     setype: httpd_sys_rw_content_t
     state: present
