@@ -1,6 +1,7 @@
 ---
 # tasks file for rthar_nginx_server
 - block:
+
   - name: Install packages
     ansible.builtin.yum:
       name: "{{ rthar_nginx_server_conf.packages }}"
@@ -39,7 +40,7 @@
     yum:
       name: policycoreutils-python
       state: installed
-    when:rthar_nginx_server_conf.manage_firewall | bool
+    when: rthar_nginx_server_conf.manage_firewall | bool
   
   - name: Configure Firewall if required
     ansible.posix.firewalld:
