@@ -20,7 +20,7 @@
   when: rthar_nginx_server_conf.manage_selinux | bool
 
 - name: Apply new SELinux file context to filesystem
-  ansible.bultin.command:
+  ansible.builtin.command:
     cmd: restorecon -irv "{{ rthar_nginx_server_conf.html_dir }}"
   when: selinux_fcontext.changed | bool
 
