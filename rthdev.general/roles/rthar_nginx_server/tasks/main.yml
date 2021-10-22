@@ -9,7 +9,7 @@
 
   - name: Ensure SElinux requirements are met when managed
     yum:
-      name: policycoreutils-python
+      name: python3-policycoreutils
       state: installed
     when: rthar_nginx_server_conf.manage_firewall | bool
   
