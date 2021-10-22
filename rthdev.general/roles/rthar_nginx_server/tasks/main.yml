@@ -7,7 +7,7 @@
     state: installed
 
 - name: Ensure html directory is available
-  ansbile.builtin.file:
+  ansible.builtin.file:
     path: "{{ rthar_nginx_server_conf.html_dir }}"
     state: directory
 
