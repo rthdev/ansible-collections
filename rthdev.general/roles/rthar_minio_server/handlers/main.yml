@@ -1,0 +1,6 @@
+---
+# handlers file for rthar_minio_server
+- name: restart minio
+  service:
+    name: minio
+    state: restarted

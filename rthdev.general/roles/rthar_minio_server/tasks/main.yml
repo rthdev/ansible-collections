@@ -1,0 +1,194 @@
+---
+# tasks file for rthar_minio_server
+- name: Create Minio group
+  ansible.builtin.group:
+    name: "{{ minio_group }}"
+    state: present
+
+- name: Create Minio user
+  ansible.builtin.user:
+    name: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    system: "yes"
+    shell: "/usr/sbin/nologin"
+
+- name: Create the MinIO data storage folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0750'
+  when: minio_server_make_datadirs | bool
+  with_items: "{{ minio_server_datadirs }}"
+
+- name: Download the Minio server binaries and compare checksum
+  ansible.builtin.get_url:
+    url: "{{ minio_server_download_url }}"
+    dest: "{{ minio_server_bin }}"
+    owner: "root"
+    group: "root"
+    mode: '0755'
+  register: download_server
+  until: download_server is succeeded
+  retries: 5
+  delay: 2
+
+- name: Download the Minio client
+  ansible.builtin.get_url:
+    url: "{{ minio_client_download_url }}"
+    dest: "{{ minio_client_bin }}"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  register: download_client
+  until: download_client is succeeded
+  retries: 5
+  delay: 2
+
+- name: Create SSL directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0755
+  loop:
+    - "{{ minio_certs_dir }}"
+    - "{{ minio_certs_dir }}/CAs"
+  when: minio_tls | bool
+
+- name: Configure CA cert
+  block:
+    - name: Check SSL CA cert
+      local_action:
+        module: ansible.builtin.stat
+        path: "{{ minio_ssl_ca }}"
+      register: ca_file_stat
+
+    - name: Assert SSL cert present
+      ansible.builtin.assert:
+        that:
+          - ca_file_stat.exists
+
+    - name: copy CA if available
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dst }}"
+        owner: "{{ minio_user }}"
+        group: "{{ minio_group }}"
+        mode: "{{ item.mode }}"
+      with_items:
+        - "{{ minio_ca }}"
+      when: minio_tls | bool and ca_file_stat | bool
+  when:
+   - minio_ssl_ca is defined
+
+- name: Copy certificates
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - "{{ minio_certs }}"
+  when: minio_tls | bool
+  notify: restart minio
+
+- name: Be sure that no certificates are available when no TLS is used
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ minio_certs_dir }}"
+  when: not minio_tls | bool
+  notify: restart minio
+
+- name: Generate the Minio server envfile
+  ansible.builtin.template:
+    src: minio.env.j2
+    dest: "{{ minio_server_envfile }}"
+    owner: "root"
+    group: "{{ minio_group }}"
+    mode: 0640
+  notify: restart minio
+  no_log: true
+
+- name: Create the Minio server systemd config
+  ansible.builtin.template:
+    src: minio.service.j2
+    dest: "/etc/systemd/system/minio.service"
+    owner: "root"
+    group: "root"
+
+- name: Reload MinIO systemd
+  ansible.builtin.systemd:
+    name: minio
+    daemon_reload: true
+
+- name: Enable and start the Minio service
+  ansible.builtin.service:
+    name: minio
+    state: started
+    enabled: true
+
+- name: "Set fact"
+  ansible.builtin.set_fact:
+    minio_proto: "https"
+  when: minio_tls | bool
+
+- name: "Set fact"
+  ansible.builtin.set_fact:
+    minio_proto: "http"
+  when: not minio_tls | bool
+
+- name: Wait until MinIO cluster is available
+  ansible.builtin.uri:
+    url: "{{ minio_proto }}://{{ item }}:{{ minio_server_port }}/minio/health/live"
+    method: GET
+    validate_certs: no
+    status_code: [200]
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 30
+  loop:
+    - "{{ inventory_hostname }}"
+  check_mode: false
+
+- name: Gather list of aliases
+  ansible.builtin.command:
+    cmd: "{{ minio_client_bin }} alias list --json"
+  register: aliases
+  changed_when: false
+  check_mode: false
+
+- name: Remove example connections from .mc/config.json
+  ansible.builtin.command:
+    cmd: "{{ minio_client_bin }} alias rm {{ item }}"
+  when: (aliases.stdout | from_json).alias == item
+  loop:
+    - local
+    - gcs
+    - play
+    - s3
+
+- name: Add connection to local minio
+  ansible.builtin.command:
+    cmd: "{{ minio_client_bin }} alias set {{ minio_storage_name }} {{ minio_proto }}://{{ minio_hostname }}:{{ minio_server_port }} {{ minio_access_key }} {{ minio_secret_key }}"
+  when: minio_storage_name not in (aliases.stdout | from_json).alias
+  no_log: true
+
+- name: List buckets
+  ansible.builtin.command:
+    cmd: "{{ minio_client_bin }} ls {{ minio_storage_name }} --json"
+  register: objects
+  changed_when: false
+  check_mode: false
+
+- name: Create Initial Buckets - on one node only
+  ansible.builtin.command:
+    cmd: "{{ minio_client_bin }} mb {{ minio_storage_name }}/{{ minio_initial_bucket }}"
+  run_once: yes
+  when: minio_initial_bucket not in (objects.stdout | from_json).key
