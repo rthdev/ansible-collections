@@ -65,7 +65,7 @@
 
   - name: Download the Image files
     get_url:
-      dest: "{{ pxesrv_isoroot }}/{{ item.iso_url | basename }}"
+      dest: "{{ pxesrv_isoroot }}/{{ item.iso_name }}"
       url: "{{ item.iso_url }}"
       tmp_dest: "{{ pxesrv_isoroot }}"
       force: no
@@ -79,7 +79,7 @@
     mount:
       fstype: iso9660
       path: "{{ pxesrv_wwwroot }}/os/{{ item.name }}"
-      src: "{{ pxesrv_isoroot }}/{{ item.iso_url | basename }}"
+      src: "{{ pxesrv_isoroot }}/{{ item.iso_name }}"
       state: mounted
     loop: "{{ pxesrv_images }}"
   
@@ -90,7 +90,7 @@
       dest: "{{ pxesrv_tftproot }}/networkboot/{{ item.name }}"
     loop: "{{ pxesrv_images }}"
   
-  - name: Template out CentOS PXE config
+  - name: Template out PXE config
     template:
       src: pxelinux-default.j2
       dest: "{{ pxesrv_pxeconfig }}"
