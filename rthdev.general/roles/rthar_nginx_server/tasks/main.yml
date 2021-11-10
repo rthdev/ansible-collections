@@ -45,11 +45,12 @@
   
   - name: Configure Firewall if required
     ansible.posix.firewalld:
-      service: "{{ rthar_nginx_server_conf.firewalld_services }}"
+      service: "{{ item }}"
       state: enabled
       immediate: true
       permanent: true
       zone: "{{ rthar_nginx_server_conf.firewall_zone }}"
+    loop: "{{ rthar_nginx_server_conf.firewalld_services }}"
     when: rthar_nginx_server_conf.manage_firewall | bool
   
   - name: Restart service
