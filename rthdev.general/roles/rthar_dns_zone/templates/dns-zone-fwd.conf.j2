@@ -13,5 +13,12 @@ $TTL {{ rthar_dns_zone_config.minttl }}
 {% if rthar_dns_zone_config.entries %}
 {% for host in rthar_dns_zone_config.entries %}
 {{ host.name.split('.')[0] }} IN A {{ host.ip }}
+{% if host.aliases is defined %}
+{% if host.aliases %}
+{% for alias in host.aliases %}
+{{ alias }}. IN CNAME {{ host.name }}.
+{% endfor %}
+{% endif %}
+{% endif %}
 {% endfor %}
 {% endif %}
